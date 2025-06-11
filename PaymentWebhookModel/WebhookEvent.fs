@@ -7,13 +7,13 @@ module WebhookEvent =
     | PaymentSuccess
     | PaymentFailure
     | RefundIssued
-    
+
     type WebhookEvent = {
         event : string
         transaction_id : string
-        amount : float
+        amount : double
         currency : string
-        timestamp : System.DateTime
+        timestamp : string
     }
 
     let StringOfType e =

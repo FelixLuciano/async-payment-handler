@@ -1,7 +1,4 @@
-using System.Text.Json;
 using PaymentWebhookModel;
-using PaymentWebhookController;
-using PaymentServiceConnector;
 
 namespace PaymentWebhookView {
     public class Program {
@@ -25,22 +22,10 @@ namespace PaymentWebhookView {
 
             app.UseHttpsRedirection();
 
-            var serviceConnector = new HttpConnector(serviceUrl);
+            var handler = new WebhookEventHandler(serviceUrl, 1000);
 
-            var webhookRoute = app.MapPost("/webhook", async (HttpContext context) => {
-                var body = await new StreamReader(context.Request.Body).ReadToEndAsync();
-
-                WebhookEvent.WebhookEvent? model = null;
-                try {
-                    model = JsonSerializer.Deserialize<WebhookEvent.WebhookEvent>(body);
-                }
-                catch (JsonException) {
-                    return Results.BadRequest("Invalid JSON payload.");
-                }
-
-                var result = WebhookEventController.handle(model, serviceConnector);
-
-                return Results.Ok(new { success = result });
+            app.MapPost("/webhook", async (HttpContext context) => {
+                return await handler.Handle(context);
             })
             .WithTags("Webhook")
             .WithName("PostWebhookEvent")

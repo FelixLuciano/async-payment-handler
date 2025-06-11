@@ -1,9 +1,10 @@
-﻿
-Microsoft Visual Studio Solution File, Format Version 12.00
+﻿Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "PaymentWebhookModel", "PaymentWebhookModel\PaymentWebhookModel.fsproj", "{14BD8F75-1F56-420C-BCF3-5F3AE7B26280}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaymentServiceConnector", "PaymentServiceConnector\PaymentServiceConnector.csproj", "{00000000-0000-0000-0000-000000000000}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaymentWebhookView", "PaymentWebhookView\PaymentWebhookView.csproj", "{62A61CEF-8D39-455A-8117-72436C6DFD33}"
 EndProject

@@ -1,7 +1,7 @@
 using System.Text.Json;
-
 using PaymentWebhookModel;
 using PaymentWebhookController;
+using PaymentServiceConnector;
 
 namespace PaymentWebhookView {
     public class Program {
@@ -10,6 +10,10 @@ namespace PaymentWebhookView {
             builder.Services.AddOpenApi();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+
+            var configuration = builder.Configuration;
+            var webhookSecret = configuration?["Webhook:SecretToken"] ?? string.Empty;
+            var serviceUrl = configuration?["PaymentService:BaseUrl"] ?? string.Empty;
 
             var app = builder.Build();
 
@@ -21,30 +25,33 @@ namespace PaymentWebhookView {
 
             app.UseHttpsRedirection();
 
-            app.MapPost("/webhook", async (HttpContext context) => {
-                var body = await new StreamReader(context.Request.Body).ReadToEndAsync();
-                var model = JsonSerializer.Deserialize<WebhookEvent.WebhookEvent>(body);
+            var serviceConnector = new HttpConnector(serviceUrl);
 
-                // Check for required properties being null or empty
-                if (model == null ||
-                    string.IsNullOrWhiteSpace(model.transaction_id) ||
-                    string.IsNullOrWhiteSpace(model.@event) ||
-                    string.IsNullOrWhiteSpace(model.timestamp.ToString())) // Add other required fields as needed
-                {
-                    return Results.BadRequest("Missing or empty required fields.");
+            var webhookRoute = app.MapPost("/webhook", async (HttpContext context) => {
+                var body = await new StreamReader(context.Request.Body).ReadToEndAsync();
+
+                WebhookEvent.WebhookEvent? model = null;
+                try {
+                    model = JsonSerializer.Deserialize<WebhookEvent.WebhookEvent>(body);
+                }
+                catch (JsonException) {
+                    return Results.BadRequest("Invalid JSON payload.");
                 }
 
-                return Results.Ok(Say.hello(model.transaction_id));
+                var result = WebhookEventController.handle(model, serviceConnector);
+
+                return Results.Ok(new { success = result });
             })
+            .WithTags("Webhook")
             .WithName("PostWebhookEvent")
             .WithSummary("Handles incoming webhook events")
             .WithDescription("Processes a event.")
+            .WithOpenApi(WebhookAuth.AddTokenHeaderParameter)
+            .AddEndpointFilter(WebhookAuth.TokenFilter)
             .Accepts<WebhookEvent.WebhookEvent>("application/json")
             .Produces<string>(StatusCodes.Status200OK)
             .Produces(StatusCodes.Status400BadRequest)
-            .Produces(StatusCodes.Status500InternalServerError)
-            .WithTags("Webhook")
-            .WithOpenApi();
+            .Produces(StatusCodes.Status500InternalServerError);
 
             app.Run();
         }

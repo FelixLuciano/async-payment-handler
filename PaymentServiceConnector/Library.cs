@@ -11,22 +11,23 @@ namespace PaymentServiceConnector {
             client = new HttpClient();
         }
 
-        public void ConfirmPayment(string transactionId) {
-            var payload = new { transactionId };
+        public void ConfirmPayment(string transactionId)
+        {
+            var payload = new { transaction_id = transactionId };
             var jsonPayload = JsonSerializer.Serialize(payload);
             var content = new StringContent(jsonPayload);
             content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
 
-            client.PostAsync(baseURL + "/confirm", content);
+            client.PostAsync(baseURL + "/confirmar", content);
         }
 
         public void CancelPayment(string transactionId) {
-            var payload = new { transactionId };
+            var payload = new { transaction_id = transactionId };
             var jsonPayload = JsonSerializer.Serialize(payload);
             var content = new StringContent(jsonPayload);
             content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
 
-            client.PostAsync(baseURL + "/cancel", content);
+            client.PostAsync(baseURL + "/cancelar", content);
         }
     }
 }

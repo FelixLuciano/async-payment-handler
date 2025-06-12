@@ -25,6 +25,8 @@ Start the web application:
 dotnet run --project PaymentWebhookView --urls=http://localhost:5000
 ```
 
+Now the application is currently running at [http://localhost:5000]. For more about the API, access the Swagger application at [/swagger](http://localhost:5000/swagger).
+
 ### Testing
 
 Set up the testing environment with Python:
